@@ -1,4 +1,10 @@
 {
+    "builds": [
+      {
+        "src": "Dockerfile",
+        "use": "@vercel/docker"
+      }
+    ],
     "buildCommand": "",
     "outputDirectory": "build/web"
   }
