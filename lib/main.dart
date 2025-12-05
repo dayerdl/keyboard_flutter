@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'search_bar_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,11 +34,13 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   int _selectedIndex = 0;
   final TextEditingController _textController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   final List<String> _items = List.generate(20, (index) => 'Item ${index + 1}');
 
   @override
   void dispose() {
     _textController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -60,6 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _handleSearch(String value) {
+    // Handle search logic here
+    print('Searching for: $value');
+  }
+
   @override
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
@@ -68,19 +76,28 @@ class _MyHomePageState extends State<MyHomePage> {
     final availableHeight = screenHeight - keyboardHeight;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          _buildScrollableContent(
-            keyboardHeight: keyboardHeight,
-            isKeyboardVisible: isKeyboardVisible,
-            screenHeight: screenHeight,
-            availableHeight: availableHeight,
-          ),
-          _buildFloatingButton(keyboardHeight: keyboardHeight),
-          _buildBottomNavigationBar(keyboardHeight: keyboardHeight),
-        ],
+      appBar: _buildAppBar(),
+      body: Scaffold(
+        body: Stack(
+          children: [
+            _buildScrollableContent(
+              keyboardHeight: keyboardHeight,
+              isKeyboardVisible: isKeyboardVisible,
+              screenHeight: screenHeight,
+              availableHeight: availableHeight,
+            ),
+            _buildFloatingButton(),
+          ],
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: Text(widget.title),
     );
   }
 
@@ -95,7 +112,6 @@ class _MyHomePageState extends State<MyHomePage> {
         parent: BouncingScrollPhysics(),
       ),
       slivers: [
-        _buildSliverAppBar(),
         _buildHeaderSliver(),
         _buildKeyboardInfoSliver(
           isKeyboardVisible: isKeyboardVisible,
@@ -103,28 +119,11 @@ class _MyHomePageState extends State<MyHomePage> {
           keyboardHeight: keyboardHeight,
           availableHeight: availableHeight,
         ),
+        _buildSearchBarSliver(),
         _buildTextFieldSliver(),
         _buildItemsListSliver(),
         _buildCounterSliver(),
       ],
-    );
-  }
-
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          widget.title,
-          textAlign: TextAlign.left,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      centerTitle: false,
-      floating: false,
-      automaticallyImplyLeading: false,
     );
   }
 
@@ -152,6 +151,16 @@ class _MyHomePageState extends State<MyHomePage> {
           keyboardHeight: keyboardHeight,
           availableHeight: availableHeight,
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBarSliver() {
+    return SliverToBoxAdapter(
+      child: CustomSearchBar(
+        title: 'Search items...',
+        controller: _searchController,
+        function: _handleSearch,
       ),
     );
   }
@@ -185,14 +194,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildCounterSliver() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 120, top: 16),
+        padding: const EdgeInsets.only(bottom: 80, top: 16),
         child: _buildCounterSection(),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Text('David 12', style: Theme.of(context).textTheme.headlineLarge);
+    return Text('David 15', style: Theme.of(context).textTheme.headlineLarge);
   }
 
   Widget _buildKeyboardInfo({
@@ -265,10 +274,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFloatingButton({required double keyboardHeight}) {
+  Widget _buildFloatingButton() {
     return Positioned(
       right: 16,
-      bottom: keyboardHeight + 72,
+      bottom: 16,
       child: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
@@ -277,29 +286,30 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildBottomNavigationBar({required double keyboardHeight}) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: keyboardHeight,
-      child: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onBottomNavTap,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      decoration: const BoxDecoration(
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            offset: Offset(0.0, -4.0),
+            blurRadius: 16.0,
+            color: Colors.black38,
           ),
-          BottomNavigationBarItem(
+        ],
+      ),
+      child: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onBottomNavTap,
+        indicatorColor: Theme.of(context).colorScheme.primary,
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
+          NavigationDestination(icon: Icon(Icons.favorite), label: 'Favorites'),
+          NavigationDestination(
             icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
