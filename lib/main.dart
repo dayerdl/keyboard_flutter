@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final availableHeight = screenHeight - keyboardHeight;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           _buildScrollableContent(
@@ -77,10 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
             screenHeight: screenHeight,
             availableHeight: availableHeight,
           ),
-          _buildFloatingButton(),
+          _buildFloatingButton(keyboardHeight: keyboardHeight),
+          _buildBottomNavigationBar(keyboardHeight: keyboardHeight),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
 
@@ -265,10 +265,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFloatingButton() {
+  Widget _buildFloatingButton({required double keyboardHeight}) {
     return Positioned(
       right: 16,
-      bottom: 72,
+      bottom: keyboardHeight + 72,
       child: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
@@ -277,23 +277,31 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: _selectedIndex,
-      onTap: _onBottomNavTap,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Colors.grey,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: 'Notifications',
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-      ],
+  Widget _buildBottomNavigationBar({required double keyboardHeight}) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: keyboardHeight,
+      child: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onBottomNavTap,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
     );
   }
 }
